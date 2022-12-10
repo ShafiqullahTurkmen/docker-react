@@ -1,0 +1,101 @@
+Solution #2 (Quickest)
+Many students have indicated recently in our QA that they wish to know the quickest and least complicated solution to solve the code updating on Windows regardless of whether it is a best practice. 
+
+This solution assumes that the project exists on the Windows file system and was not created on or copied to the WSL Linux file system.
+
+There is currently an undocumented solution in the latest versions of Webpack:
+
+https://github.com/facebook/create-react-app/issues/12397
+
+You can add the variable to your frontend src/package.json start script like so:
+
+  "scripts": {
+    "start": "WATCHPACK_POLLING=true react-scripts start",
+Build the image as you normally would:
+
+docker build -f Dockerfile.dev -t USERNAME:frontend .
+
+From the root of your frontend project directory, run the container using PowerShell:
+
+docker run -it -p 3000:3000 -v /app/node_modules -v ${PWD}:/app USERNAME:frontend
+
+Do not use the pwd variable shown in the course videos. This will not work with Windows terminals. Please use ${PWD} which is correct for use with PowerShell.
+
+
+************nodemone Docker************
+    "dev": "nodemon -L index.js"
+
+******* To clean Docker ********
+docker system prune
+
+** To create image from dockerfile **
+docker build -t [image name] [dockerfile source]
+docker build -t node-app-image .
+
+** To remove specific image **
+docker rmi [image name]
+docker rmi node-app-image
+
+** To create container from image **
+docker run -p [your p : container p] -d --name [container name] [image name]
+docker run -p 3000:3000 -d --name node-app node-app-image
+
+** To remove specific container **
+docker rm [container name]  -f 
+docker rm node-app -f
+
+** To remove specific container with its volume **
+docker rm [container name]  -fv 
+docker rm node-app -fv
+
+** To excute command in container interactively **
+docker exec -it [container name] [command]
+docker exec -it node-app bash
+docker exec -it node-app ls
+docker exec -it node-app cat index.js
+
+** To create Volume and Container from image **
+docker run -v [pathfolderonlocation:pathfolderoncontainer] -p [your p : container p] -d --name [container name] [image name]
+docker run -v C:\Users\shafi\Documents\01.YoutubeProjects\Docker\node docker\:/app -p 3000:3000 -d --name node-app node-app-image
+docker run -v %cd%:/app -p 3000:3000 -d --name node-app node-app-image
+docker run -v ${pwd}:/app -p 3000:3000 -d --name node-app node-app-image
+
+** To create Anonymouse Volume **
+docker run -v ${pwd}:/app -v [Anonymouse volume container path] -p 3000:3000 -d --name node-app node-app-image
+docker run -v ${pwd}:/app -v /app/node_modules -p 3000:3000 -d --name node-app node-app-image
+
+** To create readonly Volume bind mount **
+docker run -v ${pwd}:/app:[read only] -v /app/node_modules -p 3000:3000 -d --name node-app node-app-image
+docker run -v ${pwd}:/app:ro -v /app/node_modules -p 3000:3000 -d --name node-app node-app-image
+
+** To set Env **
+docker run -v ${pwd}:/app:ro -v /app/node_modules --env [key=value] -p 3000:3000 -d --name node-app node-app-image
+docker run -v ${pwd}:/app:ro -v /app/node_modules --env PORT=4000 -p 3000:4000 -d --name node-app node-app-image
+
+** Get Env from file **
+docker run -v ${pwd}:/app:ro -v /app/node_modules --env-file [env file path] -p 3000:4000 -d --name node-app node-app-image
+docker run -v ${pwd}:/app:ro -v /app/node_modules --env-file ./.env -p 5000:5000 -d --name node-app node-app-image
+
+
+
+** To see logs **
+docker logs [container name]
+docker logs node-app
+
+
+
+****************************************************************************
+** Docker Compose **
+docker-compose up -d
+docker-compose down
+docker-compose down -v
+docker-compose -f docker-compose.yml -f docker-compose.dev.yml up -d
+docker-compose -f docker-compose.yml -f docker-compose.dev.yml down -v
+docker-compose -f docker-compose.yml -f docker-compose.dev.yml up -d --no-deps node-app
+docker-compose -f docker-compose.yml -f docker-compose.dev.yml up -d mongo
+docker-compose -f docker-compose.yml -f docker-compose.dev.yml up -d --scale node-app=2
+
+########## Attention ###########
+There is a function in index.js that can trigger infinite loop, be aware of that
+
+03:58:00
